@@ -21,7 +21,7 @@
 
 ### 1. 저장소 클론
 ```bash
-git clone <본인의_GitHub_저장소_주소>
+git clone (https://github.com/felix203/travel_planner)
 cd travel_planner
 ```
 
