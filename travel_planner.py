@@ -38,7 +38,8 @@ def save_report(date, recommendation, places, itinerary):  # ← itinerary 추�
     md += f"## 🍽️ {city} 맛집 추천\n"
     if places:  # ← 맛집이 있으면
         for i, place in enumerate(places, 1):
-            md += f"{i}. **{place['place_name']}** ({place['road_address_name']})\n"
+            address = place.get("road_address_name") or place.get("address_name", "주소 없음")
+            md += f"{i}. **{place['place_name']}** ({address})\n"
     else:  # ← 맛집이 0건이면
         md += "데이터 없음\n"
 
@@ -196,7 +197,7 @@ if __name__ == "__main__":
         if places:
             for i, place in enumerate(places, 1):
                 name = place["place_name"]
-                address = place["road_address_name"]
+                address = place.get("road_address_name") or place.get("address_name", "주소 없음")
                 print(f"{i}. {name} ({address})")
         else:
             print("데이터 없음")
