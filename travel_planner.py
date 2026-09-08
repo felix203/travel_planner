@@ -1,4 +1,5 @@
 import requests
+import os
 import argparse
 import json
 from datetime import datetime
@@ -18,7 +19,7 @@ def validate_date(date_str):
         return False
 
 # ⑤ 리포트 생성 & 저장 함수
-def save_report(date, recommendation, places):
+def save_report(date, recommendation, places, itinerary):  # ← itinerary 추가
     """추천 결과를 마크다운 파일로 저장"""
     city = recommendation["recommended_city"]
 
@@ -35,15 +36,45 @@ def save_report(date, recommendation, places):
     md += f"**추천 이유:** {recommendation['reason']}\n\n"
 
     md += f"## 🍽️ {city} 맛집 추천\n"
-    for i, place in enumerate(places, 1):
-        md += f"{i}. **{place['place_name']}** ({place['road_address_name']})\n"
+    if places:  # ← 맛집이 있으면
+        for i, place in enumerate(places, 1):
+            md += f"{i}. **{place['place_name']}** ({place['road_address_name']})\n"
+    else:  # ← 맛집이 0건이면
+        md += "데이터 없음\n"
+
+    # ⭐ 1일 일정 추가!
+    md += f"\n## 🗓️ 추천 1일 일정\n\n"
+    md += f"{itinerary}\n"
+
+    # results 폴더 생성
+    os.makedirs("results", exist_ok=True)
 
     # 파일로 저장
-    filename = f"travel_report_{date}.md"
+    filename = os.path.join("results", f"travel_report_{date}.md")
     with open(filename, "w", encoding="utf-8") as f:
         f.write(md)
 
     print(f"\n✅ 리포트 저장 완료: {filename}")
+# ⑥ 원본 데이터 JSON 저장 함수
+def save_raw_data(date, recommendation, places, errors):
+    """추천 + 맛집 + 오류를 원본 JSON으로 저장"""
+    # 저장할 데이터 조립
+    raw_data = {
+        "date": date,
+        "recommendation": recommendation,  # 1차 추천 JSON
+        "places": places,                  # 맛집 검색 결과 리스트
+        "errors": errors                   # 오류 목록 (빈 리스트일 수 있음)
+    }
+
+    # results 폴더 생성 (없으면 만듦)
+    os.makedirs("results", exist_ok=True)
+
+    # JSON 파일로 저장
+    filename = os.path.join("results", f"travel_data_{date}.json")
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(raw_data, f, ensure_ascii=False, indent=2)
+
+    print(f"✅ 원본 데이터 저장 완료: {filename}")
 
 # ② 카카오 검색 함수
 def search_place(keyword):
@@ -67,7 +98,7 @@ def search_place(keyword):
 
 # ③ AI 여행 추천 함수 (JSON 버전)
 def recommend_city(date):
-    """AI에게 여행지를 JSON 형식으로 추천받는 함수"""
+    """AI에게 여행지를 JSON 형식으로 추천받는 함수 (파싱 실패 시 1회 재시도)"""
     prompt = f"""{date}에 국내 여행을 추천해줘.
 반드시 아래 JSON 형식으로만 답변해줘. 다른 설명은 절대 붙이지 마.
 
@@ -78,18 +109,51 @@ def recommend_city(date):
   "reason": "추천 이유 2~4문장"
 }}
 """
+    # 최대 2번 시도 (첫 시도 + 재시도 1회)
+    for attempt in range(2):
+        response = client.chat.completions.create(
+            model="gpt-5-mini",
+            messages=[
+                {"role": "system", "content": "너는 여행 추천 전문가야. JSON으로만 답해."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        answer = response.choices[0].message.content
+
+        try:
+            data = json.loads(answer)  # 파싱 시도
+            return data                # 성공하면 바로 반환!
+        except json.JSONDecodeError:
+            print(f"⚠️ JSON 파싱 실패 (시도 {attempt + 1}/2)")
+            if attempt == 0:
+                print("   재시도합니다...")
+
+    # 2번 다 실패하면 예외 발생
+    raise ValueError("JSON 파싱에 2번 실패했습니다.")
+
+# ④ 1일 일정 생성 함수
+def make_itinerary(city, places):
+    """추천 도시와 맛집을 바탕으로 1일 일정(오전/오후/저녁)을 생성"""
+    # 맛집 이름만 뽑아서 문자열로 만들기
+    place_names = ", ".join([p["place_name"] for p in places]) if places else "없음"
+
+    prompt = f"""'{city}' 지역으로 당일치기 여행 일정을 짜줘.
+참고할 맛집 목록: {place_names}
+
+아래 형식으로 오전/오후/저녁 일정을 간단히 제안해줘. (각 2~3줄)
+
+**오전:** (내용)
+**오후:** (내용)
+**저녁:** (내용)
+"""
     response = client.chat.completions.create(
         model="gpt-5-mini",
         messages=[
-            {"role": "system", "content": "너는 여행 추천 전문가야. JSON으로만 답해."},
+            {"role": "system", "content": "너는 여행 일정 플래너야."},
             {"role": "user", "content": prompt}
         ]
     )
-    answer = response.choices[0].message.content
-    
-    # 문자열 → 파이썬 딕셔너리로 변환
-    data = json.loads(answer)
-    return data
+    return response.choices[0].message.content
 
 if __name__ == "__main__":
     # ① argparse 설정
@@ -102,24 +166,54 @@ if __name__ == "__main__":
         print("❌ 날짜 형식이 올바르지 않습니다. 예: -date \"2025-07-15\"")
         exit()
 
-        # AI 추천 실행 (JSON)
-    recommendation = recommend_city(args.date)
+    # ③ API 키 확인
+    if not OPENAI_API_KEY:
+        print("❌ OPENAI_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
+        exit()
+    if not KAKAO_API_KEY:
+        print("❌ KAKAO_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
+        exit()
 
-    print("🤖 AI 추천 결과 (JSON):")
-    print(recommendation)
-    print()
-    print("추천 도시:", recommendation["recommended_city"])
+    # ④ 메인 실행 (try-except로 감싸기)
+    errors = []  # 오류를 모을 빈 리스트
+
+    try:
+        # AI 추천 실행 (JSON)
+        recommendation = recommend_city(args.date)
+
+        print("🤖 AI 추천 결과 (JSON):")
+        print(recommendation)
+        print()
+
+        city = recommendation["recommended_city"]
+        print("추천 도시:", city)
 
         # 추천 도시로 맛집 검색
-    city = recommendation["recommended_city"]
-    keyword = f"{city} 맛집"
-    
-    print(f"\n🍽️ '{keyword}' 검색 결과:")
-    places = search_place(keyword)
-    
-    for i, place in enumerate(places, 1):
-        name = place["place_name"]
-        address = place["road_address_name"]
-        print(f"{i}. {name} ({address})")
-        # 리포트 저장
-    save_report(args.date, recommendation, places)
+        keyword = f"{city} 맛집"
+        print(f"\n🍽️ '{keyword}' 검색 결과:")
+        places = search_place(keyword)
+
+        if places:
+            for i, place in enumerate(places, 1):
+                name = place["place_name"]
+                address = place["road_address_name"]
+                print(f"{i}. {name} ({address})")
+        else:
+            print("데이터 없음")
+            errors.append("맛집 검색 결과 0건")
+
+        # 1일 일정 생성
+        print("\n🗓️ 1일 일정 생성 중...")
+        itinerary = make_itinerary(city, places)
+        print(itinerary)
+
+        # 리포트 저장 (.md)
+        save_report(args.date, recommendation, places, itinerary)
+
+        # 원본 데이터 저장 (.json)
+        save_raw_data(args.date, recommendation, places, errors)
+
+    except Exception as e:
+        print(f"\n❌ 오류가 발생했습니다: {e}")
+        errors.append(str(e))
+        print("프로그램을 종료합니다.")

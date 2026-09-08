@@ -1,0 +1,85 @@
+{
+  "date": "2025-07-15",
+  "recommendation": {
+    "recommended_city": "보령",
+    "weather": "7월 중순은 한여름으로 덥고 습하며 낮 기온은 대체로 28–31°C, 밤에는 22–25°C 수준입니다. 장마 영향으로 소나기나 비가 올 가능성이 있고 습도가 높습니다.",
+    "events": [
+      "보령머드축제 (대천해수욕장)",
+      "대천해수욕장 야간공연 및 해양레저 이벤트"
+    ],
+    "reason": "보령은 7월 중순에 대표적인 여름 축제인 보령머드축제가 열려 물놀이와 축제 분위기를 동시에 즐기기 좋습니다. 넓은 백사장과 다양한 해양레저, 야간공연이 있어 낮과 밤 모두 활동하기 좋으며 수도권에서 접근성이 좋아 당일치기나 1박 여행으로 부담이 적습니다."
+  },
+  "places": [
+    {
+      "address_name": "충남 보령시 오천면 소성리 700-89",
+      "category_group_code": "FD6",
+      "category_group_name": "음식점",
+      "category_name": "음식점 > 한식 > 해물,생선",
+      "distance": "",
+      "id": "14724556",
+      "phone": "041-932-8083",
+      "place_name": "오천항 수산물판매센터 8호점",
+      "place_url": "http://place.map.kakao.com/14724556",
+      "road_address_name": "충남 보령시 오천면 오천해안로 782-5",
+      "x": "126.52050113902692",
+      "y": "36.43927487672797"
+    },
+    {
+      "address_name": "충남 보령시 천북면 장은리 산 205",
+      "category_group_code": "FD6",
+      "category_group_name": "음식점",
+      "category_name": "음식점 > 한식 > 해물,생선 > 굴,전복",
+      "distance": "",
+      "id": "11129482",
+      "phone": "010-9557-0402",
+      "place_name": "소현네굴구이",
+      "place_url": "http://place.map.kakao.com/11129482",
+      "road_address_name": "충남 보령시 천북면 홍보로 1061",
+      "x": "126.48395457373991",
+      "y": "36.50716844515174"
+    },
+    {
+      "address_name": "충남 보령시 성주면 개화리 177-1",
+      "category_group_code": "CE7",
+      "category_group_name": "카페",
+      "category_name": "음식점 > 카페 > 테마카페",
+      "distance": "",
+      "id": "738023692",
+      "phone": "070-4133-2845",
+      "place_name": "카페리리스 본점",
+      "place_url": "http://place.map.kakao.com/738023692",
+      "road_address_name": "충남 보령시 성주면 성주산로 673-47",
+      "x": "126.65858179143383",
+      "y": "36.31370447719393"
+    },
+    {
+      "address_name": "충남 보령시 신흑동 2272-10",
+      "category_group_code": "FD6",
+      "category_group_name": "음식점",
+      "category_name": "음식점 > 한식 > 해물,생선 > 조개",
+      "distance": "",
+      "id": "18753750",
+      "phone": "041-932-2285",
+      "place_name": "대천가자조개구이",
+      "place_url": "http://place.map.kakao.com/18753750",
+      "road_address_name": "충남 보령시 해수욕장8길 49",
+      "x": "126.513008818594",
+      "y": "36.3132036890458"
+    },
+    {
+      "address_name": "충남 보령시 청라면 향천리 142-5",
+      "category_group_code": "CE7",
+      "category_group_name": "카페",
+      "category_name": "음식점 > 카페 > 커피전문점",
+      "distance": "",
+      "id": "377584999",
+      "phone": "041-931-9331",
+      "place_name": "갱스커피",
+      "place_url": "http://place.map.kakao.com/377584999",
+      "road_address_name": "충남 보령시 청라면 청성로 143",
+      "x": "126.65457940346101",
+      "y": "36.367779848219286"
+    }
+  ],
+  "errors": []
+}
