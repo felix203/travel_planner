@@ -207,3 +207,106 @@ export KAKAO_API_KEY="..."
 - [ ] **도시명 정규화**: 오탈자·동의어 보정, 세부 지역 추출 전처리
 - [ ] **맛집 0건 대응**: 대체 키워드·근접 지역 자동 확장
 - [ ] **재시도 프롬프트 보정**: 파싱 실패 시 정규표현식 추출 + 프롬프트 강화
+## 🧩 설계 노트 (확장) — 향후 전략 상세
+
+---
+
+### 4. 지도 API 공급자 교체 전략 
+현재 `search_place()`는 Kakao Local API에 고정되어 있습니다.
+공급자 교체를 위해 아래처럼 **래퍼 인터페이스**로 분리하는 설계를 권장합니다.
+
+```python
+# 인터페이스(추상) — 모든 공급자가 이 형태를 따름
+class PlaceSearcher:
+    def search(self, keyword: str) -> list[dict]:
+        raise NotImplementedError
+
+# Kakao 구현체
+class KakaoSearcher(PlaceSearcher):
+    def search(self, keyword):
+        # 기존 Kakao 호출 로직
+        ...
+
+# Naver 등 다른 공급자로 교체 시 새 클래스만 추가
+```
+> **교체 지침**: 새 공급자는 `PlaceSearcher`를 상속해 `search()`만 구현하면 되며,
+> 반환 형식(`[{name, address}, ...]`)만 맞추면 상위 코드는 수정 불필요합니다.
+
+---
+
+### 5. 오류 누적 저장 전략
+현재는 실행할 때마다 `errors`가 새로 시작됩니다.
+과거 로그를 병합하려면 아래 로직을 도입합니다.
+
+```python
+import os, json
+
+def load_previous_errors(path):
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            return json.load(f).get("errors", [])
+    return []
+
+# 사용: 기존 오류 + 이번 실행 오류 병합
+merged_errors = load_previous_errors(json_path) + errors
+```
+> `--merge-errors` 옵션을 argparse에 추가해 선택적으로 병합하도록 설계합니다.
+
+---
+
+### 6. 재시도 시 프롬프트 보정 & 파싱 보완 전략
+파싱 실패 시 단순 재시도를 넘어 아래 전략을 적용합니다.
+
+**(1) 프롬프트 보정** — 재시도 시 제약을 더 강하게:
+```
+"이전 응답이 JSON 파싱에 실패했습니다.
+ 코드블록(```)이나 설명 없이 순수 JSON 객체만 출력하세요."
+```
+
+**(2) 파싱 보완** — 정규표현식으로 JSON 부분만 추출:
+```python
+import re, json
+
+def extract_json(text):
+    match = re.search(r'\{.*\}', text, re.DOTALL)  # 첫 {부터 마지막 }까지
+    if match:
+        return json.loads(match.group())
+    raise ValueError("JSON 추출 실패")
+```
+> 이렇게 하면 LLM이 앞뒤에 설명을 붙여도 JSON만 안전하게 뽑아낼 수 있습니다.
+
+---
+
+### 7. 결과 캐시 / 재사용 전략
+같은 날짜로 재실행 시 API 재호출을 막아 비용·시간을 절약합니다.
+
+```python
+def get_cached_or_run(date, force=False):
+    path = f"results/travel_data_{date}.json"
+    if os.path.exists(path) and not force:
+        print("♻️ 캐시된 결과를 재사용합니다.")
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    return run_full_pipeline(date)  # 없으면 실제 실행
+```
+> `--force` 옵션으로 캐시를 무시하고 새로 실행할 수 있게 설계합니다.
+
+---
+
+### 8. 추천 도시명 정규화 전략
+LLM이 반환한 도시명이 부정확할 때를 대비한 전처리 단계입니다.
+
+```python
+CITY_ALIAS = {"서울시": "서울", "제주도": "제주", "부산광역시": "부산"}
+
+def normalize_city(city: str) -> str:
+    city = city.strip()
+    city = CITY_ALIAS.get(city, city)        # 동의어 보정
+    city = re.sub(r"(특별시|광역시|도)$", "", city)  # 접미사 제거
+    return city
+
+# 사용
+keyword = f"{normalize_city(city)} 맛집"
+```
+> **처리 순서**: 공백 제거 → 동의어 매핑 → 접미사 제거 → (실패 시 LLM 재질문).
+> 오탈자가 심하면 맛집 검색 0건을 유발하므로 검색 전 반드시 정규화합니다.
