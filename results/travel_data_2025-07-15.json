@@ -1,84 +1,84 @@
 {
   "date": "2025-07-15",
   "recommendation": {
-    "recommended_city": "강릉",
-    "weather": "7월 중순은 한여름으로 무덥고 습하며 장마의 영향으로 소나기나 비가 올 수 있습니다. 낮 기온은 대체로 25~31°C, 밤에도 20°C 내외로 덥고 습합니다.",
+    "recommended_city": "보령",
+    "weather": "7월 중순은 전형적인 한여름으로 고온다습하며 장마 영향으로 비가 올 가능성이 있습니다. 해안 지역이라 낮에는 덥고 습하지만 바다 바람으로 비교적 쾌적한 순간도 있습니다.",
     "events": [
-      "경포해변 여름 해수욕장 개장 및 해양 액티비티",
-      "안목·강릉 커피거리 야외 카페와 소규모 야간 문화 공연"
+      "보령머드축제",
+      "대천해수욕장 해변축제"
     ],
-    "reason": "강릉은 바다와 해변이 가까워 여름철 해수욕과 해양 액티비티를 즐기기 좋고, 안목 커피거리 등에서 여유로운 카페 문화를 즐기기 좋습니다. 서울 등 주요 도시에서 접근성이 좋아 당일치기 또는 1박 여행으로 부담이 적고, 신선한 해산물과 함께 여름철 특유의 경관을 만끽할 수 있습니다."
+    "reason": "보령은 7월에 대표적인 여름 축제인 보령머드축제로 유명해 축제 분위기와 해수욕을 동시에 즐길 수 있습니다. 넓은 대천해수욕장과 다양한 해양레저·먹거리로 가족이나 친구들과 즐기기 좋고 수도권에서의 접근성도 좋아 1박~2박 여행에 적합합니다."
   },
   "places": [
     {
-      "address_name": "강원특별자치도 강릉시 교동 1859-5",
+      "address_name": "충남 보령시 오천면 소성리 700-89",
       "category_group_code": "FD6",
       "category_group_name": "음식점",
-      "category_name": "음식점 > 한식 > 육류,고기 > 닭요리",
+      "category_name": "음식점 > 한식 > 해물,생선",
       "distance": "",
-      "id": "27586424",
-      "phone": "033-641-3601",
-      "place_name": "강릉부성불고기찜닭 교동택지 본점",
-      "place_url": "http://place.map.kakao.com/27586424",
-      "road_address_name": "강원특별자치도 강릉시 율곡초교길39번길 16",
-      "x": "128.8802433613894",
-      "y": "37.7652291029009"
+      "id": "14724556",
+      "phone": "041-932-8083",
+      "place_name": "오천항 수산물판매센터 8호점",
+      "place_url": "http://place.map.kakao.com/14724556",
+      "road_address_name": "충남 보령시 오천면 오천해안로 782-5",
+      "x": "126.52050113902692",
+      "y": "36.43927487672797"
     },
     {
-      "address_name": "강원특별자치도 강릉시 노암동 824-10",
+      "address_name": "충남 보령시 대천동 328-6",
+      "category_group_code": "FD6",
+      "category_group_name": "음식점",
+      "category_name": "음식점 > 양식 > 피자",
+      "distance": "",
+      "id": "10863094",
+      "phone": "041-932-7922",
+      "place_name": "피자파티",
+      "place_url": "http://place.map.kakao.com/10863094",
+      "road_address_name": "충남 보령시 대흥로 44",
+      "x": "126.593980369303",
+      "y": "36.349729833516"
+    },
+    {
+      "address_name": "충남 보령시 궁촌동 30-8",
       "category_group_code": "FD6",
       "category_group_name": "음식점",
       "category_name": "음식점 > 한식",
       "distance": "",
-      "id": "125345615",
-      "phone": "033-646-9588",
-      "place_name": "풍호맛뜨락 강릉본점",
-      "place_url": "http://place.map.kakao.com/125345615",
-      "road_address_name": "강원특별자치도 강릉시 임영로 10",
-      "x": "128.89663993563448",
-      "y": "37.743248753318625"
+      "id": "9203608",
+      "phone": "041-932-4069",
+      "place_name": "신화정",
+      "place_url": "http://place.map.kakao.com/9203608",
+      "road_address_name": "충남 보령시 궁촌1길 5-1",
+      "x": "126.59583050696203",
+      "y": "36.343528813738175"
     },
     {
-      "address_name": "강원특별자치도 강릉시 포남동 1131-9",
-      "category_group_code": "FD6",
-      "category_group_name": "음식점",
-      "category_name": "음식점 > 간식 > 떡,한과",
-      "distance": "",
-      "id": "16826307",
-      "phone": "033-643-7778",
-      "place_name": "참순찰떡방",
-      "place_url": "http://place.map.kakao.com/16826307",
-      "road_address_name": "강원특별자치도 강릉시 남구길5번길 18-1",
-      "x": "128.905318032996",
-      "y": "37.7626984458933"
-    },
-    {
-      "address_name": "강원특별자치도 강릉시 교동 1836-6",
+      "address_name": "충남 보령시 천북면 하만리 375-7",
       "category_group_code": "CE7",
       "category_group_name": "카페",
-      "category_name": "음식점 > 카페",
+      "category_name": "음식점 > 카페 > 커피전문점",
       "distance": "",
-      "id": "1623821093",
-      "phone": "010-8296-9411",
-      "place_name": "쎄라비",
-      "place_url": "http://place.map.kakao.com/1623821093",
-      "road_address_name": "강원특별자치도 강릉시 하슬라로206번길 4-10",
-      "x": "128.8757812584479",
-      "y": "37.76728749644583"
+      "id": "858687561",
+      "phone": "010-8636-5710",
+      "place_name": "우유창고",
+      "place_url": "http://place.map.kakao.com/858687561",
+      "road_address_name": "충남 보령시 천북면 홍보로 573",
+      "x": "126.52566575517461",
+      "y": "36.48878151149055"
     },
     {
-      "address_name": "강원특별자치도 강릉시 교동 1801-7",
+      "address_name": "충남 보령시 동대동 680-19",
       "category_group_code": "FD6",
       "category_group_name": "음식점",
-      "category_name": "음식점 > 한식 > 육류,고기 > 갈비",
+      "category_name": "음식점 > 한식 > 해물,생선 > 게,대게",
       "distance": "",
-      "id": "10906027",
-      "phone": "033-641-7832",
-      "place_name": "택지골수제생갈비",
-      "place_url": "http://place.map.kakao.com/10906027",
-      "road_address_name": "강원특별자치도 강릉시 하슬라로232번길 1",
-      "x": "128.876146143612",
-      "y": "37.7705895819692"
+      "id": "1723630317",
+      "phone": "0502-5553-0876",
+      "place_name": "밥도둑꽃게장",
+      "place_url": "http://place.map.kakao.com/1723630317",
+      "road_address_name": "충남 보령시 대청로 143",
+      "x": "126.609589436654",
+      "y": "36.354323768471"
     }
   ],
   "errors": []

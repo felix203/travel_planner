@@ -19,7 +19,7 @@ def validate_date(date_str):
         return False
 
 # ⑤ 리포트 생성 & 저장 함수
-def save_report(date, recommendation, places, itinerary):  # ← itinerary 추가
+def save_report(date, recommendation, places, itinerary, errors):  # ✅ errors 추가
     """추천 결과를 마크다운 파일로 저장"""
     city = recommendation["recommended_city"]
 
@@ -47,6 +47,14 @@ def save_report(date, recommendation, places, itinerary):  # ← itinerary 추�
     md += f"\n## 🗓️ 추천 1일 일정\n\n"
     md += f"{itinerary}\n"
 
+    # ✅ [추가] 오류 요약을 리포트 최하단에 표시
+    if errors:
+        md += "\n---\n\n## ⚠️ 처리 중 발생한 오류\n\n"
+        for err in errors:
+            md += f"- {err}\n"
+    else:
+        md += "\n---\n\n## ✅ 처리 결과\n\n오류 없이 완료되었습니다.\n"
+
     # results 폴더 생성
     os.makedirs("results", exist_ok=True)
 
@@ -56,6 +64,7 @@ def save_report(date, recommendation, places, itinerary):  # ← itinerary 추�
         f.write(md)
 
     print(f"\n✅ 리포트 저장 완료: {filename}")
+    
 # ⑥ 원본 데이터 JSON 저장 함수
 def save_raw_data(date, recommendation, places, errors):
     """추천 + 맛집 + 오류를 원본 JSON으로 저장"""
@@ -110,6 +119,14 @@ def recommend_city(date):
   "reason": "추천 이유 2~4문장"
 }}
 """
+    # ✅ [추가] 검증할 필수 키와 타입 정의
+    required_keys = {
+        "recommended_city": str,
+        "weather": str,
+        "events": list,
+        "reason": str
+    }
+
     # 최대 2번 시도 (첫 시도 + 재시도 1회)
     for attempt in range(2):
         response = client.chat.completions.create(
@@ -123,15 +140,23 @@ def recommend_city(date):
 
         try:
             data = json.loads(answer)  # 파싱 시도
-            return data                # 성공하면 바로 반환!
-        except json.JSONDecodeError:
-            print(f"⚠️ JSON 파싱 실패 (시도 {attempt + 1}/2)")
+
+            # ✅ [추가] 필수 키 존재 + 타입 검증
+            for key, expected_type in required_keys.items():
+                if key not in data:
+                    raise ValueError(f"필수 키 누락: {key}")
+                if not isinstance(data[key], expected_type):
+                    raise ValueError(f"타입 오류: {key}")
+
+            return data  # 파싱 + 검증 모두 성공하면 반환!
+
+        except (json.JSONDecodeError, ValueError) as e:  # ✅ ValueError도 잡기
+            print(f"⚠️ 응답 검증 실패 (시도 {attempt + 1}/2): {e}")
             if attempt == 0:
                 print("   재시도합니다...")
 
     # 2번 다 실패하면 예외 발생
-    raise ValueError("JSON 파싱에 2번 실패했습니다.")
-
+    raise ValueError("JSON 파싱/검증에 2번 실패했습니다.")
 # ④ 1일 일정 생성 함수
 def make_itinerary(city, places):
     """추천 도시와 맛집을 바탕으로 1일 일정(오전/오후/저녁)을 생성"""
@@ -209,7 +234,7 @@ if __name__ == "__main__":
         print(itinerary)
 
         # 리포트 저장 (.md)
-        save_report(args.date, recommendation, places, itinerary)
+        save_report(args.date, recommendation, places, itinerary, errors)
 
         # 원본 데이터 저장 (.json)
         save_raw_data(args.date, recommendation, places, errors)
