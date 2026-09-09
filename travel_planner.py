@@ -2,6 +2,7 @@ import requests
 import os
 import argparse
 import json
+import re
 from datetime import datetime
 from config import KAKAO_API_KEY
 from openai import OpenAI
@@ -9,6 +10,34 @@ from config import OPENAI_API_KEY
 
 # ① OpenAI 클라이언트 생성 (위쪽에!)
 client = OpenAI(api_key=OPENAI_API_KEY, base_url="https://copa.codyssey.kr/v1")
+
+CITY_ALIAS = {"서울시": "서울", "제주도": "제주", "부산광역시": "부산"}
+
+def normalize_city(city):
+    """추천 도시명 정규화 (동의어·접미사 보정)"""
+    city = city.strip()
+    city = CITY_ALIAS.get(city, city)
+    city = re.sub(r"(특별시|광역시|도)$", "", city)
+    return city
+
+# ② 지도 검색 (공급자 교체 가능 구조)
+class PlaceSearcher:
+    """지도 검색 공급자 인터페이스"""
+    def search(self, keyword):
+        raise NotImplementedError
+
+class KakaoSearcher(PlaceSearcher):
+    """Kakao Local API 구현체"""
+    def search(self, keyword):
+        url = "https://dapi.kakao.com/v2/local/search/keyword.json"
+        headers = {"Authorization": f"KakaoAK {KAKAO_API_KEY}"}
+        params = {"query": keyword, "size": 5}
+        response = requests.get(url, headers=headers, params=params)
+        if response.status_code == 200:
+            return response.json()["documents"]
+        else:
+            print(f"⚠️ 오류 발생: {response.status_code}")
+            return []
 
 def validate_date(date_str):
     """날짜 형식(YYYY-MM-DD) 검증"""
@@ -86,49 +115,31 @@ def save_raw_data(date, recommendation, places, errors):
 
     print(f"✅ 원본 데이터 저장 완료: {filename}")
 
-# ② 카카오 검색 함수
-def search_place(keyword):
-    """카카오 API로 장소를 검색하는 함수"""
-    url = "https://dapi.kakao.com/v2/local/search/keyword.json"
-    headers = {
-        "Authorization": f"KakaoAK {KAKAO_API_KEY}"
-    }
-    params = {
-        "query": keyword,
-        "size": 5
-    }
-    response = requests.get(url, headers=headers, params=params)
-    if response.status_code == 200:
-        result = response.json()
-        places = result["documents"]
-        return places
-    else:
-        print(f"⚠️ 오류 발생: {response.status_code}")
-        return []
+def extract_json(text):
+    """LLM 응답에서 JSON만 추출"""
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+    raise ValueError("JSON 추출 실패")
 
-# ③ AI 여행 추천 함수 (JSON 버전)
 def recommend_city(date):
-    """AI에게 여행지를 JSON 형식으로 추천받는 함수 (파싱 실패 시 1회 재시도)"""
-    prompt = f"""{date}에 국내 여행을 추천해줘.
-반드시 아래 JSON 형식으로만 답변해줘. 다른 설명은 절대 붙이지 마.
-
+    base_prompt = f"""{date}에 국내 여행을 추천해줘.
+반드시 아래 JSON 형식으로만 답변해줘.
 {{
-  "recommended_city": "도시명 (예: 강릉)",
-  "weather": "해당 시기 일반적인 날씨 요약",
+  "recommended_city": "도시명",
+  "weather": "날씨 요약",
   "events": ["행사1", "행사2"],
   "reason": "추천 이유 2~4문장"
 }}
 """
-    # ✅ [추가] 검증할 필수 키와 타입 정의
-    required_keys = {
-        "recommended_city": str,
-        "weather": str,
-        "events": list,
-        "reason": str
-    }
+    required_keys = {"recommended_city": str, "weather": str,
+                     "events": list, "reason": str}
 
-    # 최대 2번 시도 (첫 시도 + 재시도 1회)
     for attempt in range(2):
+        prompt = base_prompt
+        if attempt == 1:  # ✅ 재시도 시 프롬프트 강화
+            prompt += "\n[중요] 이전 응답 파싱 실패. 설명·코드블록 없이 순수 JSON만 출력하세요."
+
         response = client.chat.completions.create(
             model="gpt-5-mini",
             messages=[
@@ -139,24 +150,20 @@ def recommend_city(date):
         answer = response.choices[0].message.content
 
         try:
-            data = json.loads(answer)  # 파싱 시도
-
-            # ✅ [추가] 필수 키 존재 + 타입 검증
+            data = extract_json(answer)  # ✅ 정규식 파싱
             for key, expected_type in required_keys.items():
                 if key not in data:
                     raise ValueError(f"필수 키 누락: {key}")
                 if not isinstance(data[key], expected_type):
                     raise ValueError(f"타입 오류: {key}")
-
-            return data  # 파싱 + 검증 모두 성공하면 반환!
-
-        except (json.JSONDecodeError, ValueError) as e:  # ✅ ValueError도 잡기
+            return data
+        except (json.JSONDecodeError, ValueError) as e:
             print(f"⚠️ 응답 검증 실패 (시도 {attempt + 1}/2): {e}")
             if attempt == 0:
-                print("   재시도합니다...")
+                print("   프롬프트를 보정하여 재시도합니다...")
 
-    # 2번 다 실패하면 예외 발생
     raise ValueError("JSON 파싱/검증에 2번 실패했습니다.")
+
 # ④ 1일 일정 생성 함수
 def make_itinerary(city, places):
     """추천 도시와 맛집을 바탕으로 1일 일정(오전/오후/저녁)을 생성"""
@@ -181,43 +188,53 @@ def make_itinerary(city, places):
     )
     return response.choices[0].message.content
 
+def load_previous_errors(path):
+    """과거 JSON에서 errors를 읽어 누적"""
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            return json.load(f).get("errors", [])
+    return []
+
 if __name__ == "__main__":
-    # ① argparse 설정
     parser = argparse.ArgumentParser(description="AI 여행 추천 프로그램")
     parser.add_argument("-date", required=True, help='여행 날짜 (예: -date "2025-07-15")')
+    parser.add_argument("--force", action="store_true", help="캐시 무시하고 재실행")  # ✅ #16
     args = parser.parse_args()
 
-    # ② 날짜 검증
     if not validate_date(args.date):
         print("❌ 날짜 형식이 올바르지 않습니다. 예: -date \"2025-07-15\"")
         exit()
-
-    # ③ API 키 확인
     if not OPENAI_API_KEY:
-        print("❌ OPENAI_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
+        print("❌ OPENAI_API_KEY가 설정되지 않았습니다.")
         exit()
     if not KAKAO_API_KEY:
-        print("❌ KAKAO_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
+        print("❌ KAKAO_API_KEY가 설정되지 않았습니다.")
         exit()
 
-    # ④ 메인 실행 (try-except로 감싸기)
-    errors = []  # 오류를 모을 빈 리스트
+    json_path = os.path.join("results", f"travel_data_{args.date}.json")
+
+    # ✅ #16 캐시 재사용
+    if os.path.exists(json_path) and not args.force:
+        print("♻️ 캐시된 결과를 재사용합니다. (새로 실행하려면 --force)")
+        with open(json_path, encoding="utf-8") as f:
+            cached = json.load(f)
+        print(cached["recommendation"])
+        exit()
+
+    errors = load_previous_errors(json_path)  # ✅ #9 이전 오류 누적
 
     try:
-        # AI 추천 실행 (JSON)
         recommendation = recommend_city(args.date)
-
         print("🤖 AI 추천 결과 (JSON):")
         print(recommendation)
-        print()
 
-        city = recommendation["recommended_city"]
+        city = normalize_city(recommendation["recommended_city"])  # ✅ #17 정규화
         print("추천 도시:", city)
 
-        # 추천 도시로 맛집 검색
         keyword = f"{city} 맛집"
         print(f"\n🍽️ '{keyword}' 검색 결과:")
-        places = search_place(keyword)
+        searcher = KakaoSearcher()          # ✅ #8 래퍼 사용
+        places = searcher.search(keyword)
 
         if places:
             for i, place in enumerate(places, 1):
@@ -228,18 +245,13 @@ if __name__ == "__main__":
             print("데이터 없음")
             errors.append("맛집 검색 결과 0건")
 
-        # 1일 일정 생성
         print("\n🗓️ 1일 일정 생성 중...")
         itinerary = make_itinerary(city, places)
         print(itinerary)
 
-        # 리포트 저장 (.md)
         save_report(args.date, recommendation, places, itinerary, errors)
-
-        # 원본 데이터 저장 (.json)
         save_raw_data(args.date, recommendation, places, errors)
 
     except Exception as e:
         print(f"\n❌ 오류가 발생했습니다: {e}")
         errors.append(str(e))
-        print("프로그램을 종료합니다.")
