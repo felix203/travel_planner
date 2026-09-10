@@ -1,84 +1,84 @@
 {
   "date": "2025-07-15",
   "recommendation": {
-    "recommended_city": "보령",
-    "weather": "7월 중순은 전형적인 한여름으로 고온다습하며 장마 영향으로 비가 올 가능성이 있습니다. 해안 지역이라 낮에는 덥고 습하지만 바다 바람으로 비교적 쾌적한 순간도 있습니다.",
+    "recommended_city": "제주",
+    "weather": "무덥고 습한 여름 날씨. 장마 잔여 영향으로 소나기 가능성이 있으며 해안 지역은 비교적 선선한 바닷바람이 있음.",
     "events": [
-      "보령머드축제",
-      "대천해수욕장 해변축제"
+      "해수욕 및 해양 액티비티(스노클링·서핑·카약)",
+      "올레길 트레킹·한라산 산행 및 지역 야시장(동문시장) 탐방"
     ],
-    "reason": "보령은 7월에 대표적인 여름 축제인 보령머드축제로 유명해 축제 분위기와 해수욕을 동시에 즐길 수 있습니다. 넓은 대천해수욕장과 다양한 해양레저·먹거리로 가족이나 친구들과 즐기기 좋고 수도권에서의 접근성도 좋아 1박~2박 여행에 적합합니다."
+    "reason": "7월 중순은 제주 해변을 즐기기 좋은 시기여서 수영과 해양 액티비티를 즐기기 좋습니다. 한라산과 올레길로 다양한 자연 체험이 가능하고, 비가 와도 지역 야시장·카페 등 실내외를 아우르는 즐길 거리가 많아 일정 조정이 쉬워 추천합니다."
   },
   "places": [
     {
-      "address_name": "충남 보령시 오천면 소성리 700-89",
+      "address_name": "제주특별자치도 서귀포시 성산읍 고성리 316-3",
       "category_group_code": "FD6",
       "category_group_name": "음식점",
       "category_name": "음식점 > 한식 > 해물,생선",
       "distance": "",
-      "id": "14724556",
-      "phone": "041-932-8083",
-      "place_name": "오천항 수산물판매센터 8호점",
-      "place_url": "http://place.map.kakao.com/14724556",
-      "road_address_name": "충남 보령시 오천면 오천해안로 782-5",
-      "x": "126.52050113902692",
-      "y": "36.43927487672797"
+      "id": "8970084",
+      "phone": "064-782-4771",
+      "place_name": "맛나식당",
+      "place_url": "http://place.map.kakao.com/8970084",
+      "road_address_name": "제주특별자치도 서귀포시 성산읍 동류암로 41",
+      "x": "126.916078563797",
+      "y": "33.4486008329529"
     },
     {
-      "address_name": "충남 보령시 대천동 328-6",
-      "category_group_code": "FD6",
-      "category_group_name": "음식점",
-      "category_name": "음식점 > 양식 > 피자",
-      "distance": "",
-      "id": "10863094",
-      "phone": "041-932-7922",
-      "place_name": "피자파티",
-      "place_url": "http://place.map.kakao.com/10863094",
-      "road_address_name": "충남 보령시 대흥로 44",
-      "x": "126.593980369303",
-      "y": "36.349729833516"
-    },
-    {
-      "address_name": "충남 보령시 궁촌동 30-8",
+      "address_name": "제주특별자치도 제주시 아라이동 3009-5",
       "category_group_code": "FD6",
       "category_group_name": "음식점",
       "category_name": "음식점 > 한식",
       "distance": "",
-      "id": "9203608",
-      "phone": "041-932-4069",
-      "place_name": "신화정",
-      "place_url": "http://place.map.kakao.com/9203608",
-      "road_address_name": "충남 보령시 궁촌1길 5-1",
-      "x": "126.59583050696203",
-      "y": "36.343528813738175"
+      "id": "1735521703",
+      "phone": "0502-5552-7747",
+      "place_name": "오롯",
+      "place_url": "http://place.map.kakao.com/1735521703",
+      "road_address_name": "제주특별자치도 제주시 신설로11길 2-10",
+      "x": "126.544340522138",
+      "y": "33.4909893788423"
     },
     {
-      "address_name": "충남 보령시 천북면 하만리 375-7",
-      "category_group_code": "CE7",
-      "category_group_name": "카페",
-      "category_name": "음식점 > 카페 > 커피전문점",
-      "distance": "",
-      "id": "858687561",
-      "phone": "010-8636-5710",
-      "place_name": "우유창고",
-      "place_url": "http://place.map.kakao.com/858687561",
-      "road_address_name": "충남 보령시 천북면 홍보로 573",
-      "x": "126.52566575517461",
-      "y": "36.48878151149055"
-    },
-    {
-      "address_name": "충남 보령시 동대동 680-19",
+      "address_name": "제주특별자치도 제주시 연동 461-1",
       "category_group_code": "FD6",
       "category_group_name": "음식점",
-      "category_name": "음식점 > 한식 > 해물,생선 > 게,대게",
+      "category_name": "음식점 > 한식 > 해장국",
       "distance": "",
-      "id": "1723630317",
-      "phone": "0502-5553-0876",
-      "place_name": "밥도둑꽃게장",
-      "place_url": "http://place.map.kakao.com/1723630317",
-      "road_address_name": "충남 보령시 대청로 143",
-      "x": "126.609589436654",
-      "y": "36.354323768471"
+      "id": "994067083",
+      "phone": "064-745-5705",
+      "place_name": "은희네해장국 2호점",
+      "place_url": "http://place.map.kakao.com/994067083",
+      "road_address_name": "제주특별자치도 제주시 연북로 178",
+      "x": "126.500290936206",
+      "y": "33.481396129266"
+    },
+    {
+      "address_name": "제주특별자치도 서귀포시 대정읍 안성리 1701",
+      "category_group_code": "CE7",
+      "category_group_name": "카페",
+      "category_name": "음식점 > 카페",
+      "distance": "",
+      "id": "363468370",
+      "phone": "010-2366-5110",
+      "place_name": "어린왕자감귤밭",
+      "place_url": "http://place.map.kakao.com/363468370",
+      "road_address_name": "제주특별자치도 서귀포시 대정읍 추사로36번길 45-1",
+      "x": "126.281829649556",
+      "y": "33.253298288599"
+    },
+    {
+      "address_name": "제주특별자치도 서귀포시 성산읍 온평리 661-2",
+      "category_group_code": "FD6",
+      "category_group_name": "음식점",
+      "category_name": "음식점 > 한식",
+      "distance": "",
+      "id": "27268966",
+      "phone": "064-782-7829",
+      "place_name": "청호식당",
+      "place_url": "http://place.map.kakao.com/27268966",
+      "road_address_name": "제주특별자치도 서귀포시 성산읍 온평관전로 94",
+      "x": "126.90784908179704",
+      "y": "33.41050719942559"
     }
   ],
   "errors": []

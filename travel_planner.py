@@ -32,11 +32,15 @@ class KakaoSearcher(PlaceSearcher):
         url = "https://dapi.kakao.com/v2/local/search/keyword.json"
         headers = {"Authorization": f"KakaoAK {KAKAO_API_KEY}"}
         params = {"query": keyword, "size": 5}
-        response = requests.get(url, headers=headers, params=params)
-        if response.status_code == 200:
-            return response.json()["documents"]
-        else:
-            print(f"⚠️ 오류 발생: {response.status_code}")
+        try:
+            response = requests.get(url, headers=headers, params=params)
+            if response.status_code == 200:
+                return response.json()["documents"]
+            else:
+                print(f"⚠️ 오류 발생: {response.status_code}")
+                return []
+        except requests.exceptions.RequestException as e:
+            print(f"⚠️ 네트워크 오류 발생: {e}")
             return []
 
 def validate_date(date_str):
@@ -255,3 +259,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ 오류가 발생했습니다: {e}")
         errors.append(str(e))
+        # 실패해도 원본 데이터(오류 포함)는 저장 → 미션 요건 충족
+        recommendation = locals().get("recommendation", {})
+        places = locals().get("places", [])
+        save_raw_data(args.date, recommendation, places, errors)
