@@ -39,10 +39,10 @@ travel_planner/
 | 단계 | 담당 함수 | 역할 |
 |------|-----------|------|
 | 입력 검증 | `validate_date()` | 날짜 형식(YYYY-MM-DD) 확인 |
-| 추천 | `get_recommendation()` | LLM 호출 → JSON 파싱·검증 |
-| 검색 | `search_place()` | Kakao Local API 맛집 조회 |
-| 일정 | `create_itinerary()` | 오전/오후/저녁 코스 생성 |
-| 저장 | `save_report()` | md + json 파일 생성 |
+| 추천 | `recommend_city()` | LLM 호출 → JSON 파싱·검증 |
+| 검색 | `KaKaoSearcher.search()` | Kakao Local API 맛집 조회 |
+| 일정 | `make_itinerary()` | 오전/오후/저녁 코스 생성 |
+| 저장 | `save_report()/save_raw_data()` | md + json 파일 생성 |
 
 ---
 
@@ -66,7 +66,7 @@ pip install -r requirements.txt
 
 ```
 OPENAI_API_KEY=여기에_OpenAI_키_입력
-KAKAO_API_KEY=여기에_Kakao_REST_API_키_입력
+KAKAO_REST_API_KEY=여기에_Kakao_REST_API_키_입력
 ```
 
 > 🔑 **키 발급처**
@@ -87,7 +87,7 @@ python travel_planner.py -date "2025-07-15"
 ### ⚠️ 날짜 검증 실패 시 출력 예시
 ```bash
 $ python travel_planner.py -date "2025/07/15"
-❌ 날짜 형식이 올바르지 않습니다. YYYY-MM-DD 형식으로 입력해주세요. (예: 2025-07-15)
+❌ 날짜 형식이 올바르지 않습니다. 예:-date "2025-07-15"
 ```
 
 ### 실행 예시 (정상)
@@ -153,7 +153,7 @@ $ python travel_planner.py -date "2025-07-15"
 
 ### 3. 검증 실패 시 에러 메시지 포맷
 - 필수 키 누락: `"필수 키 누락: {key}"`
-- 타입 불일치: `"타입 오류: {key}는 {expected}여야 함"`
+- 타입 불일치: `"타입 오류: {key}"`
 - 맛집 0건: `"맛집 검색 결과 0건"`
 > LLM 스키마(`recommended_city`, `weather`, `events`, `reason`) 변경 시
 > 이 포맷과 `required_keys` 딕셔너리를 함께 수정하세요.
@@ -184,7 +184,7 @@ $ python travel_planner.py -date "2025-07-15"
 ```bash
 # Linux/CI (예: GitHub Actions, 서버 배포 시)
 export OPENAI_API_KEY="sk-..."
-export KAKAO_API_KEY="..."
+export KAKAO_REST_API_KEY="..."
 ```
 > CI에서는 **Secrets 기능**(예: GitHub Actions Secrets)에 키를 등록해 주입하세요.
 
@@ -201,12 +201,12 @@ export KAKAO_API_KEY="..."
 
 ## 🗺️ 향후 개선 로드맵
 
-- [ ] **지도 API 추상화**: `search_place()`를 인터페이스로 분리해 다른 공급자(네이버 등) 교체 가능하게
-- [ ] **오류 누적 저장**: 과거 `results` JSON을 읽어 `errors`를 병합
-- [ ] **캐시/재사용**: 같은 날짜 결과가 있으면 API 호출을 건너뛰는 옵션
-- [ ] **도시명 정규화**: 오탈자·동의어 보정, 세부 지역 추출 전처리
-- [ ] **맛집 0건 대응**: 대체 키워드·근접 지역 자동 확장
-- [ ] **재시도 프롬프트 보정**: 파싱 실패 시 정규표현식 추출 + 프롬프트 강화
+- [완] **지도 API 추상화**: `search_place()`를 인터페이스로 분리해 다른 공급자(네이버 등) 교체 가능하게
+- [완] **오류 누적 저장**: 과거 `results` JSON을 읽어 `errors`를 병합
+- [완] **캐시/재사용**: 같은 날짜 결과가 있으면 API 호출을 건너뛰는 옵션
+- [완] **도시명 정규화**: 오탈자·동의어 보정, 세부 지역 추출 전처리
+- [비] **맛집 0건 대응**: 대체 키워드·근접 지역 자동 확장
+- [완] **재시도 프롬프트 보정**: 파싱 실패 시 정규표현식 추출 + 프롬프트 강화
 ## 🧩 설계 노트 (확장) — 향후 전략 상세
 
 ---
